@@ -36,36 +36,41 @@
 </div>
 
     <script>
+    //Weather API key located on local config.js file.
     var mykey = config.WEATHER_KEY;  
-
+    var celcius = 0;
+    var fahrenheit = 0;
     var api_link;
+
+    //API call to get user's IP Address
     $.getJSON("https://geoip-db.com/json/geoip.php?jsonp=?", function (location) {
+
+        //API call using long / lat info recieved by previous API call
         api_link = "http://api.openweathermap.org/data/2.5/weather?lat=" + location.latitude + "&lon=" + 
         location.longitude + "&APPID=" + mykey;
         location.city === null ? $('#location').text(location.country_name) : $('#location').text(location.city + ", " + location.country_name);
         $.getJSON(api_link, function(data) {
             $('#weather').html(data["weather"][0]["description"]);
-            $('#temp').html(Math.max((Math.round((data["main"]["temp"] - 273.15) * 10) / 10).toFixed(2)));
+            celcius = Math.max((Math.round((data["main"]["temp"] - 273.15) * 10) / 10).toFixed(2));  
+            fahrenheit = ((celcius * 9) / 5) + 32;
+            $('#temp').html(celcius);
             var image = "http://openweathermap.org/img/w/" + data['weather'][0]["icon"] + ".png";
             $('#image').attr('src', image);
         });
     });
 
-    var celcius = true;
-    var new_temp;
+    var isCelcius = true;
 
     $('#degrees').click(function(){
-        if (celcius == true) {
+        if (isCelcius === true) {
             $('#degrees').html("&deg;F");
-            new_temp = ((parseFloat($('#temp').text()) * 9) / 5) + 32;
-            $('#temp').html(Math.max((Math.round(new_temp * 10) / 10).toFixed(2)));
-            celcius = false;
+            $('#temp').html(fahrenheit);
+            isCelcius = false;
         }
         else {
             $('#degrees').html("&deg;C");
-            new_temp = ((parseFloat($('#temp').text()) - 32) * 5) / 9;
-            $('#temp').html(Math.max((Math.round(new_temp * 10) / 10).toFixed(2)));
-            celcius = true;
+            $('#temp').html(celcius);
+            isCelcius = true;
         }
         
     });
