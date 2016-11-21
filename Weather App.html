@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Weather App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" type="text/css" href="Weather App.css" media="screen" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.9/css/weather-icons.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script type='text/javascript' src='config.js'></script>
+</head>
+
+<body>
+
+<div class = "container-fluid ">
+    <div id = "main">
+        <div> 
+            <h3 id = "location"> </h3>
+        </div>
+        
+        <div> 
+            <h3 id = "weather"> </h3> 
+        </div>
+        
+        <div> 
+            <div id = "new_wrapper"> 
+            <img id = "image" src = "" alt = "Weather_IMG"> 
+            <h3 id = "wrapper"> <span id = "temp"/> </span> <button id = "degrees"> &deg;C </button> </h3> 
+            </div>
+        </div>
+                
+    </div> 
+</div>
+
+    <script>
+    var mykey = config.WEATHER_KEY;  
+
+    var api_link;
+    $.getJSON("https://geoip-db.com/json/geoip.php?jsonp=?", function (location) {
+        api_link = "http://api.openweathermap.org/data/2.5/weather?lat=" + location.latitude + "&lon=" + 
+        location.longitude + "&APPID=" + mykey;
+        location.city === null ? $('#location').text(location.country_name) : $('#location').text(location.city + ", " + location.country_name);
+        $.getJSON(api_link, function(data) {
+            $('#weather').html(data["weather"][0]["description"]);
+            $('#temp').html(Math.max((Math.round((data["main"]["temp"] - 273.15) * 10) / 10).toFixed(2)));
+            var image = "http://openweathermap.org/img/w/" + data['weather'][0]["icon"] + ".png";
+            $('#image').attr('src', image);
+        });
+    });
+
+    var celcius = true;
+    var new_temp;
+
+    $('#degrees').click(function(){
+        if (celcius == true) {
+            $('#degrees').html("&deg;F");
+            new_temp = ((parseFloat($('#temp').text()) * 9) / 5) + 32;
+            $('#temp').html(Math.max((Math.round(new_temp * 10) / 10).toFixed(2)));
+            celcius = false;
+        }
+        else {
+            $('#degrees').html("&deg;C");
+            new_temp = ((parseFloat($('#temp').text()) - 32) * 5) / 9;
+            $('#temp').html(Math.max((Math.round(new_temp * 10) / 10).toFixed(2)));
+            celcius = true;
+        }
+        
+    });
+    
+    </script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
