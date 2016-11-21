@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Weather App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" type="text/css" href="Weather App.css" media="screen" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script type='text/javascript' src='config.js'></script>
+</head>
+<body>
+
+<div class = "container-fluid ">
+    <div id = "main">
+        <div>
+            <form id = "city_search">
+                <input type = "text" id = "search_bar"/>
+                <button type = "submit"> Search </button>
+            </form>
+        </div>
+        <div> 
+            <h3 id = "location"> </h3>
+        </div>
+        
+        <div> 
+            <h3 id = "weather"> </h3> 
+        </div>
+        
+        <div> 
+            <div id = "new_wrapper"> 
+            <img id = "image" src = "" alt = "Weather_IMG"> 
+            <h3 id = "wrapper"> <span id = "temp"/> </span> <button id = "degrees"> &deg;C </button> </h3> 
+            <h2 id = "notification"> </h2>
+            </div>
+        </div>
+
+    </div> 
+</div>
+
+    <script>
+    //Weather API key located in local config.js file.
+    var mykey = config.WEATHER_KEY;  
+    var celcius = 0;
+    var fahrenheit = 0;
+    var api_link;
+
+    function get_weather (api_url){
+
+        $.ajax(api_url, {
+            success: function(data) {
+                $('#weather').html(data["weather"][0]["description"]);
+                celcius = Math.max((Math.round((data["main"]["temp"] - 273.15) * 10) / 10).toFixed(1));  
+                fahrenheit = (((celcius * 9) / 5) + 32).toFixed(1);    
+                $('#temp').html(celcius);
+                var image = "http://openweathermap.org/img/w/" + data['weather'][0]["icon"] + ".png";
+                $('#location').text(data["name"] + ", " + data["sys"]["country"]);
+                $('#image').attr('src', image);
+            },
+            error: function() {
+                alert ("Search was either not a real city, or request took too long.");
+            }
+        });
+    }
+
+    //API call to get user's IP Address
+    $.getJSON("https://geoip-db.com/json/geoip.php?jsonp=?", function (location) {
+
+        //API call using long / lat info recieved by previous API call
+        api_link = "http://api.openweathermap.org/data/2.5/weather?lat=" + location.latitude + "&lon=" + 
+        location.longitude + "&APPID=" + mykey;
+        get_weather(api_link);
+    });
+
+    var isCelcius = true;
+
+    $('#degrees').click(function(){
+        if (isCelcius === true) {
+            $('#degrees').html("&deg;F");
+            $('#temp').html(fahrenheit);
+            isCelcius = false;
+        }
+        else {
+            $('#degrees').html("&deg;C");
+            $('#temp').html(celcius);
+            isCelcius = true;
+        }
+    });
+
+    $("#city_search").submit(function(event){  
+        var city_name = $('#search_bar').val().trim();
+
+        if (!city_name){
+            alert ("Nothing entered");
+            event.preventDefault();
+            return;
+        }
+        var location_api =  "http://api.openweathermap.org/data/2.5/weather?q=" + city_name + "&APPID=" + mykey;
+        get_weather(location_api);
+        event.preventDefault();
+    });
+
+    
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
